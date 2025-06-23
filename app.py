@@ -332,7 +332,7 @@ def index():
             }
             
             .feature-text {
-                font-size: 12px;
+                font-size: 20px;
                 color: #666;
                 font-weight: 500;
             }
@@ -340,8 +340,8 @@ def index():
     </head>
     <body>
         <div class="container">
-            <div class="logo">ESYA</div>
-            <div class="subtitle">College Fest 2025 🎉</div>
+            <div class="logo">ESYA'25</div>
+            <div class="subtitle">Tech Fest of IIITD 🎉</div>
             
             <form id="registrationForm">
                 <div class="form-group">
@@ -368,20 +368,7 @@ def index():
             
             <div class="features">
                 <div class="feature">
-                    <div class="feature-icon">📱</div>
-                    <div class="feature-text">QR Code Ticket</div>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">📧</div>
-                    <div class="feature-text">Email Delivery</div>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">🔒</div>
-                    <div class="feature-text">Secure Entry</div>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">⚡</div>
-                    <div class="feature-text">Instant Access</div>
+                    <div class="feature-text">Reserve your ticket</div>
                 </div>
             </div>
         </div>
