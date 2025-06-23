@@ -66,7 +66,7 @@ def generate_qr_code(ticket_id):
     
     return img_buffer.getvalue()
 
-def send_email_with_qr(name, email, ticket_id, qr_code_data):
+def send_email_with_qr(name, email, ticket_id, qr_code_data,day):
     """Send email with QR code ticket"""
     try:
         # Email configuration
@@ -107,6 +107,8 @@ def send_email_with_qr(name, email, ticket_id, qr_code_data):
                     <p><strong>Email:</strong> {email}</p>
                     <p><strong>Ticket ID:</strong> {ticket_id}</p>
                     <p><strong>Status:</strong> ✅ Active</p>
+                    <p><strong>Day:</strong> {day}</p>
+
                 </div>
                 
                 <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin: 20px 0;">
@@ -336,6 +338,31 @@ def index():
                 color: #666;
                 font-weight: 500;
             }
+                                  
+            select {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 10px;
+    font-size: 16px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23667eea' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.146a.5.5 0 0 1 .708 0L8 8.793l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 16px 16px;
+}
+
+select:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
         </style>
     </head>
     <body>
@@ -353,6 +380,16 @@ def index():
                     <label for="email">Email Address</label>
                     <input type="email" id="email" name="email" required placeholder="Enter your email">
                 </div>
+                                  
+                <div class="form-group">
+        <label for="day">Select Day</label>
+        <select id="day" name="day" required>
+            <option value="">-- Choose a day --</option>
+            <option value="Day 1">Day 1</option>
+            <option value="Day 2">Day 2</option>
+        </select>
+    </div>
+
                 
                 <button type="submit" class="btn" id="submitBtn">
                     Register for ESYA Fest
@@ -382,6 +419,7 @@ def index():
                 const submitBtn = document.getElementById('submitBtn');
                 const loading = document.getElementById('loading');
                 const message = document.getElementById('message');
+                const day = document.getElementById('day').value;
                 
                 if (!name || !email) {
                     showMessage('Please fill in all fields', 'error');
@@ -399,7 +437,7 @@ def index():
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ name, email })
+                        body: JSON.stringify({ name, email, day })
                     });
                     
                     const data = await response.json();
@@ -446,6 +484,9 @@ def register():
         data = request.get_json()
         name = data.get('name', '').strip()
         email = data.get('email', '').strip()
+        day = data.get('day', '').strip()
+        if day not in ['Day 1', 'Day 2']:
+            return jsonify({'error': 'Please select a valid ticket day'}), 400
         
         if not name or not email:
             return jsonify({'error': 'Name and email are required'}), 400
@@ -459,18 +500,19 @@ def register():
         # Store ticket in Firebase
         if db:
             ticket_data = {
-                'ticket_id': ticket_id,
-                'name': name,
-                'email': email,
-                'scanned': False,
-                'created_at': datetime.now(),
-                'scanned_at': None
-            }
+    'ticket_id': ticket_id,
+    'name': name,
+    'email': email,
+    'day': day,
+    'scanned': False,
+    'created_at': datetime.now().isoformat(),
+    'scanned_at': None
+}
             
             db.collection('tickets').document(ticket_id).set(ticket_data)
         
         # Send email with QR code
-        email_sent = send_email_with_qr(name, email, ticket_id, qr_code_data)
+        email_sent = send_email_with_qr(name, email, ticket_id, qr_code_data,day)
         
         if not email_sent:
             return jsonify({'error': 'Failed to send email. Please try again.'}), 500
